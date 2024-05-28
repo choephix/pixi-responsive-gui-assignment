@@ -1,24 +1,30 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import { Application, Assets, Sprite, Ticker, VERSION } from 'pixi.js';
+import './style.css';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+async function main() {
+  const app = new Application();
+  await app.init({
+    background: '0x1099bb',
+    resizeTo: document.body,
+    // preference: 'webgpu',
+  });
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  console.log('PixiJS app initialized. Version:', VERSION);
+
+  document.body.appendChild(app.canvas);
+
+  // create a new Sprite from an image path
+  const tex = await Assets.load('https://pixijs.com/assets/bunny.png');
+  const bunny = Sprite.from(tex);
+  bunny.anchor.set(0.5);
+  bunny.x = app.screen.width / 2;
+  bunny.y = app.screen.height / 2;
+  app.stage.addChild(bunny);
+
+  // Listen for animate update
+  app.ticker.add((ticker: Ticker) => {
+    bunny.rotation += 0.1 * ticker.deltaTime;
+  });
+}
+
+main().catch(console.error);
