@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite, Ticker, VERSION } from 'pixi.js';
+import { Application, Assets, Container, Sprite, Ticker, VERSION } from 'pixi.js';
 import './style.css';
 
 const imgPathBase = '/assets/images/';
@@ -6,6 +6,7 @@ const imgPaths = {
   bunny: 'https://pixijs.com/assets/bunny.png',
   background: imgPathBase + 'bg.png',
   mockGameWorld: imgPathBase + 'city.png',
+  bottomGuiBackground: imgPathBase + 'ui/bot.png',
 };
 
 async function main() {
@@ -34,7 +35,7 @@ async function main() {
   });
 
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
-  //// Background
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
 
   {
@@ -68,6 +69,43 @@ async function main() {
       sprite.x = app.screen.width * 0.5;
       sprite.y = app.screen.height * 0.62;
     });
+  }
+
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+
+  function createGuiContainer(sceenAlignX: number, screenAlignY: number) {
+    const container = new Container();
+    app.stage.addChild(container);
+
+    // TODO: Move to on resize event
+    app.ticker.add(() => {
+      const scaleFactor = Math.min(app.screen.width, app.screen.height) / 960;
+      container.scale.set(scaleFactor);
+
+      container.x = sceenAlignX * app.screen.width;
+      container.y = screenAlignY * app.screen.height;
+    });
+
+    return container;
+  }
+
+  const guiContainers = {
+    topLeft: createGuiContainer(0, 0),
+    topCwnter: createGuiContainer(0.5, 0),
+    topRight: createGuiContainer(1, 0),
+    bottomLeft: createGuiContainer(0, 1),
+    bottomCenter: createGuiContainer(0.5, 1),
+    bottomRight: createGuiContainer(1, 1),
+  };
+
+  {
+    ///// Add bottom-center aligned GUI elements
+    const texture = await Assets.load(imgPaths.bottomGuiBackground);
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(0.5, 1.0);
+    guiContainers.bottomCenter.addChild(sprite);
   }
 }
 
