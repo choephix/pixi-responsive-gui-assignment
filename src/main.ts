@@ -24,26 +24,25 @@ const imgPaths = {
   topGuiBackground: imgPathBase + 'ui/coin_bg.png',
   topGuiCoinButton: imgPathBase + 'ui/coin.png',
   topGuiBuyButton: imgPathBase + 'ui/+.png',
+  cloud1: imgPathBase + 'cloud.png',
+  cloud2: imgPathBase + 'cloud2.png',
 };
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+type TextureKey = keyof typeof imgPaths;
 
 /**
  * @returns Since the assignment requires loading only image-type assets,
  * returning a just dictionary of loaded textures.
  */
 async function loadGameAssets() {
-  type TextureKey = keyof typeof imgPaths;
   for (const key in imgPaths) {
     Assets.add({ alias: key, src: imgPaths[key as TextureKey] });
   }
   const allTextureKeys = Object.keys(imgPaths) as TextureKey[];
   const textures: Record<TextureKey, Texture> = await Assets.load(allTextureKeys);
 
-  await delay(1000); // Simulate loading delay (for the bunny to be visible for a moment
-
   return textures;
 }
+type GameTexturesCache = Awaited<ReturnType<typeof loadGameAssets>>;
 
 async function createLoadingBunny(app: Application) {
   const texture = await Assets.load('https://pixijs.io/examples/examples/assets/bunny.png');
@@ -64,6 +63,60 @@ async function createLoadingBunny(app: Application) {
       bunny.destroy();
     },
   };
+}
+
+function createBackground(textures: GameTexturesCache, app: Application) {
+  const container = new Container();
+
+  ///// Add background, cover type: crop, aligned to the bottom
+  const sprite = new Sprite(textures.background);
+  sprite.anchor.set(0.5, 1);
+  container.addChild(sprite);
+
+  // TODO: Move to on resize event
+  app.ticker.add(() => {
+    const scaleFactor = app.screen.width / sprite.texture.width;
+    container.scale.set(scaleFactor);
+    container.x = app.screen.width * 0.5;
+    container.y = app.screen.height;
+  });
+
+  return container;
+}
+
+function createClouds(textures: GameTexturesCache, app: Application) {
+  const container = new Container();
+
+  function addNewCloud(textureKey: TextureKey) {
+    const sprite = new Sprite(textures[textureKey]);
+    sprite.anchor.set(0.5, 0.5);
+    container.addChild(sprite);
+    return sprite;
+  }
+
+  function createCloudsRow(textureKey: TextureKey, yFrac: number, xSpeed: number) {
+    const clouds = [
+      //// Add a row of clouds, which will slowly move
+      addNewCloud(textureKey),
+      addNewCloud(textureKey),
+      addNewCloud(textureKey),
+    ];
+
+    let xOffset = 0;
+    app.ticker.add(ticker => {
+      xOffset = (xOffset + 0.01 * ticker.deltaTime * xSpeed) % 1;
+      for (const [i, cloud] of clouds.entries()) {
+        const xFactor = xOffset + i - 1; // -1, 0, 1
+        cloud.x = app.screen.width * xFactor;
+        cloud.y = app.screen.height * yFrac;
+      }
+    });
+  }
+
+  createCloudsRow('cloud1', 0.1, -1);
+  createCloudsRow('cloud2', 0.4, 1);
+
+  return container;
 }
 
 async function main() {
@@ -99,25 +152,19 @@ async function main() {
 
   {
     ///// Add background, cover type: crop, aligned to the bottom
-    const sprite = new Sprite(textures.background);
-    const hwRatio = sprite.height / sprite.width;
-    sprite.anchor.set(0.5, 1);
-    app.stage.addChildAt(sprite, 0);
+    const background = createBackground(textures, app);
+    app.stage.addChild(background);
 
-    // TODO: Move to on resize event
-    app.ticker.add(() => {
-      sprite.width = app.screen.width;
-      sprite.height = app.screen.width * hwRatio;
-      sprite.x = app.screen.width * 0.5;
-      sprite.y = app.screen.height;
-    });
+    ///// Add clouds
+    const clouds = createClouds(textures, app);
+    app.stage.addChild(clouds);
   }
 
   {
     ///// Add mock game world sprite
     const sprite = new Sprite(textures.mockGameWorld);
     sprite.anchor.set(0.5, 0.5);
-    app.stage.addChildAt(sprite, 1);
+    app.stage.addChild(sprite);
 
     // TODO: Move to on resize event
     app.ticker.add(() => {
