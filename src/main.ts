@@ -11,6 +11,10 @@ const imgPaths = {
   bottomGuiGlow: imgPathBase + 'ui/LIGHT copy 645ке.png',
   buttonRed: imgPathBase + 'ui/Button_red(1).png',
   buttonRedIcon: imgPathBase + 'ui/Button_dice_icon.png',
+  buttonHomePad: imgPathBase + 'ui/Group 1et.png',
+  buttonHomeIcon: imgPathBase + 'ui/MB_icon.png',
+  buttonNewsPad: imgPathBase + 'ui/Hue_Saturation 2 copywe.png',
+  buttonNewsIcon: imgPathBase + 'ui/news_icon.png',
 };
 
 async function main() {
@@ -109,11 +113,11 @@ async function main() {
   }
 
   const guiContainers = {
+    topCenter: createGuiContainer(0.5, 0),
     topLeft: createGuiContainer(0, 0),
-    topCwnter: createGuiContainer(0.5, 0),
     topRight: createGuiContainer(1, 0),
-    bottomLeft: createGuiContainer(0, 1),
     bottomCenter: createGuiContainer(0.5, 1),
+    bottomLeft: createGuiContainer(0, 1),
     bottomRight: createGuiContainer(1, 1),
   };
 
@@ -126,20 +130,51 @@ async function main() {
 
     const glow = new Sprite(textures.bottomGuiGlow);
     glow.anchor.set(0.5, 1.0);
-    pad.addChild(glow);
+    guiContainers.bottomCenter.addChild(glow);
     app.ticker.add(() => (glow.alpha = 0.75 + 0.25 * Math.sin(app.ticker.lastTime / 250)));
 
-    const redButton = new Sprite(textures.buttonRed);
-    redButton.anchor.set(0.5, 0.5);
-    redButton.scale.set(0.7);
+    const redButton = new Container();
     redButton.position.set(-7, -170);
-    pad.addChild(redButton);
+    guiContainers.bottomCenter.addChild(redButton);
+
+    const redButtonPad = new Sprite(textures.buttonRed);
+    redButtonPad.anchor.set(0.5, 0.5);
+    redButtonPad.scale.set(0.7);
+    redButton.addChild(redButtonPad);
 
     const redButtonIcon = new Sprite(textures.buttonRedIcon);
     redButtonIcon.anchor.set(0.5, 0.5);
-    redButtonIcon.scale.set(1.2);
+    redButtonIcon.scale.set(0.9);
     redButtonIcon.position.set(0, -20);
     redButton.addChild(redButtonIcon);
+  }
+
+  {
+    ///// Add bottom-left and bottom-right aligned GUI elements
+
+    const homeButton = new Container();
+    homeButton.position.set(135, -100);
+    guiContainers.bottomLeft.addChild(homeButton);
+
+    const homeButtonPad = new Sprite(textures.buttonHomePad);
+    homeButtonPad.anchor.set(0.5, 0.5);
+    homeButton.addChild(homeButtonPad);
+
+    const homeButtonIcon = new Sprite(textures.buttonHomeIcon);
+    homeButtonIcon.anchor.set(0.5, 0.5);
+    homeButton.addChild(homeButtonIcon);
+
+    const newsButton = new Container();
+    newsButton.position.set(-135, -100);
+    guiContainers.bottomRight.addChild(newsButton);
+
+    const newsButtonPad = new Sprite(textures.buttonNewsPad);
+    newsButtonPad.anchor.set(0.5, 0.5);
+    newsButton.addChild(newsButtonPad);
+
+    const newsButtonIcon = new Sprite(textures.buttonNewsIcon);
+    newsButtonIcon.anchor.set(0.5, 0.5);
+    newsButton.addChild(newsButtonIcon);
   }
 }
 
