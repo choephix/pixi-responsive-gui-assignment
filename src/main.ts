@@ -2,9 +2,12 @@ import { Application, Assets, Container, Sprite, Texture, Text, Ticker, VERSION 
 
 import './style.css';
 
+/**
+ * I'm keeping everything in one file for simplicity.
+ */
+
 const imgPathBase = '/assets/images/';
 const imgPaths = {
-  bunny: 'https://pixijs.com/assets/bunny.png',
   background: imgPathBase + 'bg.png',
   mockGameWorld: imgPathBase + 'city.png',
   bottomGuiBackground: imgPathBase + 'ui/bot.png',
@@ -23,7 +26,51 @@ const imgPaths = {
   topGuiBuyButton: imgPathBase + 'ui/+.png',
 };
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * @returns Since the assignment requires loading only image-type assets,
+ * returning a just dictionary of loaded textures.
+ */
+async function loadGameAssets() {
+  type TextureKey = keyof typeof imgPaths;
+  for (const key in imgPaths) {
+    Assets.add({ alias: key, src: imgPaths[key as TextureKey] });
+  }
+  const allTextureKeys = Object.keys(imgPaths) as TextureKey[];
+  const textures: Record<TextureKey, Texture> = await Assets.load(allTextureKeys);
+
+  await delay(1000); // Simulate loading delay (for the bunny to be visible for a moment
+
+  return textures;
+}
+
+async function createLoadingBunny(app: Application) {
+  const texture = await Assets.load('https://pixijs.io/examples/examples/assets/bunny.png');
+  const bunny = new Sprite(texture);
+  bunny.anchor.set(0.5);
+
+  const updateBunny = (ticker: Ticker) => {
+    bunny.x = app.screen.width / 2;
+    bunny.y = app.screen.height / 2;
+    bunny.rotation += 0.1 * ticker.deltaTime;
+  };
+  app.ticker.add(updateBunny);
+
+  return {
+    addToStage: () => app.stage.addChild(bunny),
+    destroy: () => {
+      app.ticker.remove(updateBunny);
+      bunny.destroy();
+    },
+  };
+}
+
 async function main() {
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+  //// Instantiate the PixiJS application
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+
   const app = new Application();
   await app.init({
     /** The background color equals the top part of the background image. */
@@ -35,32 +82,15 @@ async function main() {
 
   document.body.appendChild(app.canvas);
 
-  // create a new Sprite from an image path
-  const tex = await Assets.load('https://pixijs.com/assets/bunny.png');
-  const bunny = Sprite.from(tex);
-  bunny.anchor.set(0.5);
-  app.stage.addChild(bunny);
-
-  // Listen for animate update
-  const updateBunny = (ticker: Ticker) => {
-    bunny.x = app.screen.width / 2;
-    bunny.y = app.screen.height / 2;
-    bunny.rotation += 0.1 * ticker.deltaTime;
-  };
-  app.ticker.add(updateBunny);
-
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
-  //// Load all image assets
+  //// Load all image assets (using the Pixi bunny as loading indicator)
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
 
-  type TextureKey = keyof typeof imgPaths;
-  for (const key in imgPaths) {
-    Assets.add({ alias: key, src: imgPaths[key as TextureKey] });
-  }
-  const allTextureKeys = Object.keys(imgPaths) as TextureKey[];
-  const textures: Record<TextureKey, Texture> = await Assets.load(allTextureKeys);
+  const bunny = await createLoadingBunny(app);
+  bunny.addToStage();
 
-  app.ticker.remove(updateBunny);
+  const textures = await loadGameAssets();
+
   bunny.destroy();
 
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
