@@ -15,6 +15,9 @@ const imgPaths = {
   buttonHomeIcon: imgPathBase + 'ui/MB_icon.png',
   buttonNewsPad: imgPathBase + 'ui/Hue_Saturation 2 copywe.png',
   buttonNewsIcon: imgPathBase + 'ui/news_icon.png',
+  hambugerButton: imgPathBase + 'ui/gamburger_button.png',
+  porfileAvatar: imgPathBase + 'ui/profile_icons_0013.png',
+  shieldIcon: imgPathBase + 'ui/shield.png',
 };
 
 async function main() {
@@ -175,6 +178,26 @@ async function main() {
     const newsButtonIcon = new Sprite(textures.buttonNewsIcon);
     newsButtonIcon.anchor.set(0.5, 0.5);
     newsButton.addChild(newsButtonIcon);
+  }
+
+  {
+    ///// Add top-left and top-right aligned GUI elements
+
+    const burgerMenuButton = new Sprite(textures.hambugerButton);
+    burgerMenuButton.anchor.set(0.5, 0.5);
+    burgerMenuButton.position.set(65, 65);
+    guiContainers.topLeft.addChild(burgerMenuButton);
+
+    const profileAvatar = new Sprite(textures.porfileAvatar);
+    profileAvatar.anchor.set(0.5, 0.5);
+    profileAvatar.position.set(165, 65);
+    profileAvatar.scale.set(0.5);
+    guiContainers.topLeft.addChild(profileAvatar);
+
+    const shieldIcon = new Sprite(textures.shieldIcon);
+    shieldIcon.anchor.set(0.5, 0.5);
+    shieldIcon.position.set(-65, 65);
+    guiContainers.topRight.addChild(shieldIcon);
   }
 }
 
