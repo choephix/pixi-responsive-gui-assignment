@@ -29,98 +29,6 @@ const imgPaths = {
 };
 type TextureKey = keyof typeof imgPaths;
 
-/**
- * @returns Since the assignment requires loading only image-type assets,
- * returning a just dictionary of loaded textures.
- */
-async function loadGameAssets() {
-  for (const key in imgPaths) {
-    Assets.add({ alias: key, src: imgPaths[key as TextureKey] });
-  }
-  const allTextureKeys = Object.keys(imgPaths) as TextureKey[];
-  const textures: Record<TextureKey, Texture> = await Assets.load(allTextureKeys);
-
-  return textures;
-}
-type GameTexturesCache = Awaited<ReturnType<typeof loadGameAssets>>;
-
-async function createLoadingBunny(app: Application) {
-  const texture = await Assets.load('https://pixijs.io/examples/examples/assets/bunny.png');
-  const bunny = new Sprite(texture);
-  bunny.anchor.set(0.5);
-
-  const updateBunny = (ticker: Ticker) => {
-    bunny.x = app.screen.width / 2;
-    bunny.y = app.screen.height / 2;
-    bunny.rotation += 0.1 * ticker.deltaTime;
-  };
-  app.ticker.add(updateBunny);
-
-  return {
-    addToStage: () => app.stage.addChild(bunny),
-    destroy: () => {
-      app.ticker.remove(updateBunny);
-      bunny.destroy();
-    },
-  };
-}
-
-function createBackground(textures: GameTexturesCache, app: Application) {
-  const container = new Container();
-
-  ///// Add background, cover type: crop, aligned to the bottom
-  const sprite = new Sprite(textures.background);
-  sprite.anchor.set(0.5, 1);
-  container.addChild(sprite);
-
-  // TODO: Move to on resize event
-  app.ticker.add(() => {
-    const scaleFactor = app.screen.width / sprite.texture.width;
-    container.scale.set(scaleFactor);
-    container.x = app.screen.width * 0.5;
-    container.y = app.screen.height;
-  });
-
-  return container;
-}
-
-function createClouds(textures: GameTexturesCache, app: Application) {
-  const container = new Container();
-
-  //// Instantiate a cloud sprite and add it to the container
-  function addNewCloud(textureKey: TextureKey) {
-    const sprite = new Sprite(textures[textureKey]);
-    sprite.anchor.set(0.5, 0.5);
-    container.addChild(sprite);
-    return sprite;
-  }
-
-  function createCloudsRow(textureKey: TextureKey, yFrac: number, xSpeed: number) {
-    const clouds = [
-      //// Add a three clouds to the container, which will slowly move sideways
-      addNewCloud(textureKey),
-      addNewCloud(textureKey),
-      addNewCloud(textureKey),
-    ];
-
-    const minScreenWidth = 720;
-    app.ticker.add(ticker => {
-      const xOffset = Math.sin(xSpeed * ticker.lastTime);
-      const assumedScreenWidth = Math.max(minScreenWidth, app.screen.width);
-      for (const [i, cloud] of clouds.entries()) {
-        const xFactor = xOffset + i - 1; // -1, 0, 1
-        cloud.x = app.screen.width * 0.5 + assumedScreenWidth * xFactor * 0.5;
-        cloud.y = app.screen.height * yFrac;
-      }
-    });
-  }
-
-  createCloudsRow('cloud1', 0.1, -0.00003);
-  createCloudsRow('cloud2', 0.4, 0.00002);
-
-  return container;
-}
-
 async function main() {
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
   //// Instantiate the PixiJS application
@@ -316,6 +224,98 @@ async function main() {
     userIdLabel.position.set(0, 70);
     topCenterGui.addChild(userIdLabel);
   }
+}
+
+/**
+ * @returns Since the assignment requires loading only image-type assets,
+ * returning a just dictionary of loaded textures.
+ */
+async function loadGameAssets() {
+  for (const key in imgPaths) {
+    Assets.add({ alias: key, src: imgPaths[key as TextureKey] });
+  }
+  const allTextureKeys = Object.keys(imgPaths) as TextureKey[];
+  const textures: Record<TextureKey, Texture> = await Assets.load(allTextureKeys);
+
+  return textures;
+}
+type GameTexturesCache = Awaited<ReturnType<typeof loadGameAssets>>;
+
+async function createLoadingBunny(app: Application) {
+  const texture = await Assets.load('https://pixijs.io/examples/examples/assets/bunny.png');
+  const bunny = new Sprite(texture);
+  bunny.anchor.set(0.5);
+
+  const updateBunny = (ticker: Ticker) => {
+    bunny.x = app.screen.width / 2;
+    bunny.y = app.screen.height / 2;
+    bunny.rotation += 0.1 * ticker.deltaTime;
+  };
+  app.ticker.add(updateBunny);
+
+  return {
+    addToStage: () => app.stage.addChild(bunny),
+    destroy: () => {
+      app.ticker.remove(updateBunny);
+      bunny.destroy();
+    },
+  };
+}
+
+function createBackground(textures: GameTexturesCache, app: Application) {
+  const container = new Container();
+
+  ///// Add background, cover type: crop, aligned to the bottom
+  const sprite = new Sprite(textures.background);
+  sprite.anchor.set(0.5, 1);
+  container.addChild(sprite);
+
+  // TODO: Move to on resize event
+  app.ticker.add(() => {
+    const scaleFactor = app.screen.width / sprite.texture.width;
+    container.scale.set(scaleFactor);
+    container.x = app.screen.width * 0.5;
+    container.y = app.screen.height;
+  });
+
+  return container;
+}
+
+function createClouds(textures: GameTexturesCache, app: Application) {
+  const container = new Container();
+
+  //// Instantiate a cloud sprite and add it to the container
+  function addNewCloud(textureKey: TextureKey) {
+    const sprite = new Sprite(textures[textureKey]);
+    sprite.anchor.set(0.5, 0.5);
+    container.addChild(sprite);
+    return sprite;
+  }
+
+  function createCloudsRow(textureKey: TextureKey, yFrac: number, xSpeed: number) {
+    const clouds = [
+      //// Add a three clouds to the container, which will slowly move sideways
+      addNewCloud(textureKey),
+      addNewCloud(textureKey),
+      addNewCloud(textureKey),
+    ];
+
+    const minScreenWidth = 720;
+    app.ticker.add(ticker => {
+      const xOffset = Math.sin(xSpeed * ticker.lastTime);
+      const assumedScreenWidth = Math.max(minScreenWidth, app.screen.width);
+      for (const [i, cloud] of clouds.entries()) {
+        const xFactor = xOffset + i - 1; // -1, 0, 1
+        cloud.x = app.screen.width * 0.5 + assumedScreenWidth * xFactor * 0.5;
+        cloud.y = app.screen.height * yFrac;
+      }
+    });
+  }
+
+  createCloudsRow('cloud1', 0.1, -0.00003);
+  createCloudsRow('cloud2', 0.4, 0.00002);
+
+  return container;
 }
 
 main().catch(console.error);

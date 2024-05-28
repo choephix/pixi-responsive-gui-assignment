@@ -3,4 +3,18 @@ body {
   width: 100dvw;
   height: 100dvh;
   overflow: clip;
+  background: #2466aa;
+}
+
+canvas {
+  animation: fade-in 1s;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
