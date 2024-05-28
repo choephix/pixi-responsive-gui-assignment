@@ -1,4 +1,4 @@
-import { Application, Assets, Container, Sprite, Ticker, VERSION } from 'pixi.js';
+import { Application, Assets, Container, Sprite, Texture, Ticker, VERSION } from 'pixi.js';
 import './style.css';
 
 const imgPathBase = '/assets/images/';
@@ -28,11 +28,26 @@ async function main() {
   app.stage.addChild(bunny);
 
   // Listen for animate update
-  app.ticker.add((ticker: Ticker) => {
+  const updateBunny = (ticker: Ticker) => {
     bunny.x = app.screen.width / 2;
     bunny.y = app.screen.height / 2;
     bunny.rotation += 0.1 * ticker.deltaTime;
-  });
+  };
+  app.ticker.add(updateBunny);
+
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+  //// Load all image assets
+  //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
+
+  type TextureKey = keyof typeof imgPaths;
+  for (const key in imgPaths) {
+    Assets.add({ alias: key, src: imgPaths[key as TextureKey] });
+  }
+  const allTextureKeys = Object.keys(imgPaths) as TextureKey[];
+  const textures: Record<TextureKey, Texture> = await Assets.load(allTextureKeys);
+
+  app.ticker.remove(updateBunny);
+  bunny.destroy();
 
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
   //// //// //// //// //// //// //// //// //// //// //// //// //// //// ////
@@ -40,8 +55,7 @@ async function main() {
 
   {
     ///// Add background, cover type: crop, aligned to the bottom
-    const texture = await Assets.load(imgPaths.background);
-    const sprite = new Sprite(texture);
+    const sprite = new Sprite(textures.background);
     const hwRatio = sprite.height / sprite.width;
     sprite.anchor.set(0.5, 1);
     app.stage.addChildAt(sprite, 0);
@@ -57,8 +71,7 @@ async function main() {
 
   {
     ///// Add mock game world sprite
-    const texture = await Assets.load(imgPaths.mockGameWorld);
-    const sprite = new Sprite(texture);
+    const sprite = new Sprite(textures.mockGameWorld);
     sprite.anchor.set(0.5, 0.5);
     app.stage.addChildAt(sprite, 1);
 
@@ -102,8 +115,7 @@ async function main() {
 
   {
     ///// Add bottom-center aligned GUI elements
-    const texture = await Assets.load(imgPaths.bottomGuiBackground);
-    const sprite = new Sprite(texture);
+    const sprite = new Sprite(textures.bottomGuiBackground);
     sprite.anchor.set(0.5, 1.0);
     guiContainers.bottomCenter.addChild(sprite);
   }
