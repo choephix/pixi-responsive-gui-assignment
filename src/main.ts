@@ -5,14 +5,15 @@ const imgPathBase = '/assets/images/';
 const imgPaths = {
   bunny: 'https://pixijs.com/assets/bunny.png',
   background: imgPathBase + 'bg.png',
+  mockGameWorld: imgPathBase + 'city.png',
 };
 
 async function main() {
   const app = new Application();
   await app.init({
-    background: '0x1099bb',
+    /** The background color equals the top part of the background image. */
+    background: '0x2466aa',
     resizeTo: document.body,
-    // preference: 'webgpu',
   });
 
   console.log('PixiJS app initialized. Version:', VERSION);
@@ -39,17 +40,33 @@ async function main() {
   {
     ///// Add background, cover type: crop, aligned to the bottom
     const texture = await Assets.load(imgPaths.background);
-    const bg = new Sprite(texture);
-    const hwRatio = bg.height / bg.width;
-    bg.anchor.set(0.5, 1);
-    app.stage.addChildAt(bg, 0);
+    const sprite = new Sprite(texture);
+    const hwRatio = sprite.height / sprite.width;
+    sprite.anchor.set(0.5, 1);
+    app.stage.addChildAt(sprite, 0);
 
     // TODO: Move to on resize event
     app.ticker.add(() => {
-      bg.width = app.screen.width;
-      bg.height = app.screen.width * hwRatio;
-      bg.x = app.screen.width * 0.5;
-      bg.y = app.screen.height;
+      sprite.width = app.screen.width;
+      sprite.height = app.screen.width * hwRatio;
+      sprite.x = app.screen.width * 0.5;
+      sprite.y = app.screen.height;
+    });
+  }
+
+  {
+    ///// Add mock game world sprite
+    const texture = await Assets.load(imgPaths.mockGameWorld);
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(0.5, 0.5);
+    app.stage.addChildAt(sprite, 1);
+
+    // TODO: Move to on resize event
+    app.ticker.add(() => {
+      const scaleFactor = Math.min(app.screen.width, app.screen.height) / 480;
+      sprite.scale.set(scaleFactor);
+      sprite.x = app.screen.width * 0.5;
+      sprite.y = app.screen.height * 0.62;
     });
   }
 }
