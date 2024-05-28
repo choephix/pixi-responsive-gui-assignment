@@ -1,4 +1,5 @@
 import { Application, Assets, Container, Sprite, Texture, Ticker, VERSION } from 'pixi.js';
+
 import './style.css';
 
 const imgPathBase = '/assets/images/';
@@ -7,6 +8,9 @@ const imgPaths = {
   background: imgPathBase + 'bg.png',
   mockGameWorld: imgPathBase + 'city.png',
   bottomGuiBackground: imgPathBase + 'ui/bot.png',
+  bottomGuiGlow: imgPathBase + 'ui/LIGHT copy 645ке.png',
+  buttonRed: imgPathBase + 'ui/Button_red(1).png',
+  buttonRedIcon: imgPathBase + 'ui/Button_dice_icon.png',
 };
 
 async function main() {
@@ -115,9 +119,27 @@ async function main() {
 
   {
     ///// Add bottom-center aligned GUI elements
-    const sprite = new Sprite(textures.bottomGuiBackground);
-    sprite.anchor.set(0.5, 1.0);
-    guiContainers.bottomCenter.addChild(sprite);
+
+    const pad = new Sprite(textures.bottomGuiBackground);
+    pad.anchor.set(0.5, 1.0);
+    guiContainers.bottomCenter.addChild(pad);
+
+    const glow = new Sprite(textures.bottomGuiGlow);
+    glow.anchor.set(0.5, 1.0);
+    pad.addChild(glow);
+    app.ticker.add(() => (glow.alpha = 0.75 + 0.25 * Math.sin(app.ticker.lastTime / 250)));
+
+    const redButton = new Sprite(textures.buttonRed);
+    redButton.anchor.set(0.5, 0.5);
+    redButton.scale.set(0.7);
+    redButton.position.set(-7, -170);
+    pad.addChild(redButton);
+
+    const redButtonIcon = new Sprite(textures.buttonRedIcon);
+    redButtonIcon.anchor.set(0.5, 0.5);
+    redButtonIcon.scale.set(1.2);
+    redButtonIcon.position.set(0, -20);
+    redButton.addChild(redButtonIcon);
   }
 }
 
