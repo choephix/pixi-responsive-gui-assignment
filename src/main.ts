@@ -87,6 +87,7 @@ function createBackground(textures: GameTexturesCache, app: Application) {
 function createClouds(textures: GameTexturesCache, app: Application) {
   const container = new Container();
 
+  //// Instantiate a cloud sprite and add it to the container
   function addNewCloud(textureKey: TextureKey) {
     const sprite = new Sprite(textures[textureKey]);
     sprite.anchor.set(0.5, 0.5);
@@ -96,25 +97,26 @@ function createClouds(textures: GameTexturesCache, app: Application) {
 
   function createCloudsRow(textureKey: TextureKey, yFrac: number, xSpeed: number) {
     const clouds = [
-      //// Add a row of clouds, which will slowly move
+      //// Add a three clouds to the container, which will slowly move sideways
       addNewCloud(textureKey),
       addNewCloud(textureKey),
       addNewCloud(textureKey),
     ];
 
-    let xOffset = 0;
+    const minScreenWidth = 720;
     app.ticker.add(ticker => {
-      xOffset = (xOffset + 0.01 * ticker.deltaTime * xSpeed) % 1;
+      const xOffset = Math.sin(xSpeed * ticker.lastTime);
+      const assumedScreenWidth = Math.max(minScreenWidth, app.screen.width);
       for (const [i, cloud] of clouds.entries()) {
         const xFactor = xOffset + i - 1; // -1, 0, 1
-        cloud.x = app.screen.width * xFactor;
+        cloud.x = app.screen.width * 0.5 + assumedScreenWidth * xFactor * 0.5;
         cloud.y = app.screen.height * yFrac;
       }
     });
   }
 
-  createCloudsRow('cloud1', 0.1, -1);
-  createCloudsRow('cloud2', 0.4, 1);
+  createCloudsRow('cloud1', 0.1, -0.00003);
+  createCloudsRow('cloud2', 0.4, 0.00002);
 
   return container;
 }
