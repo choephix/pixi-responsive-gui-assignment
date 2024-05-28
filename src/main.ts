@@ -300,7 +300,9 @@ function createClouds(textures: GameTexturesCache, app: Application) {
       addNewCloud(textureKey),
     ];
 
-    const minScreenWidth = 720;
+    //// If the view's width is smaller than this value, let's just assume
+    //// it's equal to it, to avoid the clouds from overlapping too much.
+    const minScreenWidth = 1680;
     app.ticker.add(ticker => {
       const xOffset = Math.sin(xSpeed * ticker.lastTime);
       const assumedScreenWidth = Math.max(minScreenWidth, app.screen.width);
