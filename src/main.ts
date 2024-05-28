@@ -6,7 +6,7 @@ import './style.css';
  * I'm keeping everything in one file for simplicity.
  */
 
-const imgPathBase = '/assets/images/';
+const imgPathBase = './assets/images/';
 const imgPaths = {
   background: imgPathBase + 'bg.png',
   mockGameWorld: imgPathBase + 'city.png',
