@@ -1,4 +1,4 @@
-import { Application, Assets, Container, Sprite, Texture, Ticker, VERSION } from 'pixi.js';
+import { Application, Assets, Container, Sprite, Texture, Text, Ticker, VERSION } from 'pixi.js';
 
 import './style.css';
 
@@ -18,6 +18,9 @@ const imgPaths = {
   hambugerButton: imgPathBase + 'ui/gamburger_button.png',
   porfileAvatar: imgPathBase + 'ui/profile_icons_0013.png',
   shieldIcon: imgPathBase + 'ui/shield.png',
+  topGuiBackground: imgPathBase + 'ui/coin_bg.png',
+  topGuiCoinButton: imgPathBase + 'ui/coin.png',
+  topGuiBuyButton: imgPathBase + 'ui/+.png',
 };
 
 async function main() {
@@ -198,6 +201,41 @@ async function main() {
     shieldIcon.anchor.set(0.5, 0.5);
     shieldIcon.position.set(-65, 65);
     guiContainers.topRight.addChild(shieldIcon);
+  }
+
+  {
+    ///// Add top-center aligned GUI element
+
+    const topCenterGui = new Container();
+    topCenterGui.position.set(0, 65);
+    guiContainers.topCenter.addChild(topCenterGui);
+
+    const topGuiBackground = new Sprite(textures.topGuiBackground);
+    topGuiBackground.anchor.set(0.5, 0.5);
+    topCenterGui.addChild(topGuiBackground);
+
+    const coinButton = new Sprite(textures.topGuiCoinButton);
+    coinButton.anchor.set(0.5, 0.5);
+    coinButton.position.set(-150, 0);
+    topCenterGui.addChild(coinButton);
+
+    const buyButton = new Sprite(textures.topGuiBuyButton);
+    buyButton.anchor.set(0.5, 0.5);
+    buyButton.position.set(150, 0);
+    topCenterGui.addChild(buyButton);
+
+    const userIdLabel = new Text({
+      text: 'user: 1715600095720',
+      style: {
+        fontFamily: 'serif',
+        fontSize: 32,
+        fill: 0x101010,
+        align: 'center',
+      },
+    });
+    userIdLabel.anchor.set(0.5, 0.5);
+    userIdLabel.position.set(0, 70);
+    topCenterGui.addChild(userIdLabel);
   }
 }
 
